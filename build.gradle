@@ -62,6 +62,9 @@ dependencies {
   provided 'javax.servlet:javax.servlet-api:3.1.0'
 
   testCompile "org.grails:grails-plugin-testing"
+  testCompile "org.spockframework:spock-core"
+  testCompile "org.springframework.boot:spring-boot-starter-test" // Starter for testing Spring Boot applications with libraries including JUnit, Hamcrest and Mockito
+  testCompile "org.springframework:spring-test"
 
   console "org.grails:grails-console"
 
