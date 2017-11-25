@@ -1,0 +1,43 @@
+publishing {
+    publications {
+        maven(MavenPublication) {
+            pom.withXml {
+                def pomNode = asNode()
+                pomNode.dependencyManagement.replaceNode {}
+
+                // simply remove dependencies without a version
+                // version-less dependencies are handled with dependencyManagement
+                // see https://github.com/spring-gradle-plugins/dependency-management-plugin/issues/8 for more complete solutions
+                pomNode.dependencies.dependency.findAll {
+                    it.version.text().isEmpty()
+                }.each {
+                    it.replaceNode {}
+                }
+            }
+            artifactId project.name
+            from components.java
+            artifact sourcesJar
+            artifact javadocJar
+            artifact source: "${sourceSets.main.output.classesDir}/META-INF/grails-plugin.xml",
+                    classifier: "plugin",
+                    extension: 'xml'
+        }
+    }
+
+    repositories {
+        maven {
+            credentials {
+                username project.properties.get('artifactory_repository_username')
+                password project.properties.get('artifactory_repository_password')
+            }
+
+            if (version.endsWith('-SNAPSHOT')) {
+                url "https://jukin.jfrog.io/jukin/plugins-snapshot-local"
+            } else {
+                url "https://jukin.jfrog.io/jukin/plugins-release-local"
+            }
+        }
+    }
+}
+
+task install(dependsOn: project.tasks.withType(PublishToMavenLocal))
